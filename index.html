@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Ảnh VĐV - Giải Trẻ TP.HCM 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #e74c3c;
+            --text-color: #2c3e50;
+            --bg-glass: rgba(255, 255, 255, 0.9);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+            background: url('https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--bg-glass);
+            padding: 30px 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #555;
+            font-weight: 600;
+        }
+
+        /* Thanh tìm kiếm */
+        .search-box {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 30px auto;
+            display: flex;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            border: 2px solid #ccc;
+            border-radius: 30px;
+            outline: none;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+        }
+
+        /* Bảng danh sách */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 1.05rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #fdf5f5;
+        }
+
+        /* Khung chứa ảnh */
+        .img-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .athlete-img {
+            width: 180px; 
+            height: auto; 
+            max-height: 120px; 
+            object-fit: contain; 
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+            background-color: #f9f9f9; 
+            transition: all 0.2s ease;
+            cursor: pointer; /* Đổi con trỏ thành bàn tay để biết là click được */
+        }
+
+        /* Khi lướt chuột qua chỉ nổi bóng nhẹ, KHÔNG phóng to làm vỡ layout nữa */
+        .athlete-img:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            border-color: var(--primary-color);
+        }
+
+        /* --- CSS CHO MODAL (CỬA SỔ HIỂN THỊ ẢNH TO KHI CLICK) --- */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 9999; 
+            padding-top: 50px; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.85); 
+            backdrop-filter: blur(5px);
+            overflow: auto;
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: zoomIn 0.3s ease; 
+        }
+
+        #caption {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+            text-align: center;
+            color: #fff;
+            padding: 15px 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        @keyframes zoomIn {
+            from {transform: scale(0.8); opacity: 0;}
+            to {transform: scale(1); opacity: 1;}
+        }
+
+        /* Tùy chỉnh cột */
+        .col-stt { width: 10%; }
+        .col-name { width: 50%; text-align: left !important; padding-left: 30px !important; }
+        .col-img { width: 40%; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Hồ Sơ Ảnh Vận Động Viên</h1>
+            <div class="subtitle">Giải Trẻ TP.HCM - Năm 2026</div>
+        </header>
+
+        <!-- Khung tìm kiếm -->
+        <div class="search-box">
+            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="🔍 Nhập họ và tên VĐV để tìm kiếm...">
+        </div>
+
+        <!-- Bảng danh sách -->
+        <div class="table-container">
+            <table id="athleteTable">
+                <thead>
+                    <tr>
+                        <th class="col-stt">STT</th>
+                        <th class="col-name">Họ và Tên</th>
+                        <th class="col-img">Ảnh dự thi (Click để xem to)</th>
+                    </tr>
+                </thead>
+                <tbody id="athlete-body">
+                    <!-- Dữ liệu sẽ được chèn tự động qua JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Cửa sổ nền đen bật lên khi click vào ảnh -->
+    <div id="imageModal" class="modal" onclick="closeModal(event)">
+        <span class="close-btn" onclick="closeModal(event)">&times;</span>
+        <img class="modal-content" id="zoomedImg">
+        <div id="caption"></div>
+    </div>
+
+    <script>
+        const athletes = [
+            "Kiều Minh Tâm", "Võ Đức Anh", "Bùi Nguyễn Hoàng Phúc", "Đoàn Gia Bảo", "Phan Hoàng An",
+            "Nguyễn Hoàng Giang", "Huỳnh Nguyễn Minh Hải", "Ngô Công Tuấn Tài", "Lý Hoàng Mạnh", "Mai Công Thành",
+            "Nguyễn Tiến Đạt", "Huỳnh Minh Triết", "Nguyễn Doãn Hào", "Vũ Thanh Tùng", "Nguyễn Trọng Thành",
+            "Lưu Gia Huy", "Huỳnh Trung Hiếu", "Huỳnh Nguyễn Đông Quân", "Nguyễn Lê Anh Quân", "Nguyễn Trọng Khang",
+            "Đỗ Hoàng Hải", "Bùi Văn Long", "Nguyễn Ngọc Cát Tường", "Đặng Ngọc Trà My", "Phan Phi Phụng",
+            "Nguyễn Lê Thanh Tú", "Ngô Phạm Ngọc Ngân", "Phạm Phương Chi", "Vũ Bảo Châu", "Hồ Quỳnh Anh",
+            "Võ Ngọc Tường Lam", "Nguyễn Thị Yến Nhi", "Trần Thanh Ngọc Trâm", "Nguyễn Thị Thanh Tuyền", "Lý Đức Thịnh"
+        ];
+
+        const tbody = document.getElementById('athlete-body');
+
+        // Sinh các hàng trong bảng
+        athletes.forEach((name, index) => {
+            const stt = index + 1;
+            const imgName = `anh${String(stt).padStart(2, '0')}.jpg`;
+            const fallbackUrl = `https://via.placeholder.com/180x110?text=Chưa+có+ảnh`;
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${stt}</td>
+                <td style="text-align: left; padding-left: 30px;">${name}</td>
+                <td>
+                    <div class="img-wrapper">
+                        <!-- Gắn sự kiện onclick trực tiếp vào thẻ img -->
+                        <img src="${imgName}" 
+                             alt="Thẻ VĐV ${name}" 
+                             class="athlete-img" 
+                             onclick="openModal('${imgName}', 'Thẻ VĐV ${name}')"
+                             title="Click để xem ảnh lớn"
+                             onerror="this.src='${fallbackUrl}'">
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Xử lý tìm kiếm
+        function filterTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('athleteTable');
+            const tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                const tdName = tr[i].getElementsByTagName('td')[1];
+                if (tdName) {
+                    const txtValue = tdName.textContent || tdName.innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        // --- HÀM XỬ LÝ PHÓNG TO ẢNH (MODAL) ---
+
+        function openModal(imageSrc, altText) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('zoomedImg');
+            const captionText = document.getElementById('caption');
+            
+            modal.style.display = "block";
+            // Xử lý lỗi nếu ảnh không tồn tại trong modal
+            modalImg.onerror = function() {
+                this.src = 'https://via.placeholder.com/800x500?text=Chưa+có+ảnh';
+            };
+            modalImg.src = imageSrc;
+            captionText.innerHTML = altText;
+        }
+
+        function closeModal(event) {
+            // Ngăn tắt modal nếu người dùng vô tình bấm thẳng vào bức ảnh đang phóng to
+            if (event && event.target.id === 'zoomedImg') {
+                return;
+            }
+            const modal = document.getElementById('imageModal');
+            modal.style.display = "none";
+        }
+    </script>
+</body>
+</html>
